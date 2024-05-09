@@ -29,10 +29,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.MapGet("hello", () =>
-{
-    return Results.Ok("Hello world");
-});
+app.MapGet("hello", () => "Hello world");
 
 app.UseSwagger();
 app.UseSwaggerUI();
