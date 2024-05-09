@@ -30,9 +30,8 @@ Echo listens for incoming requests and echoes back any requests that contain `/a
 ## Example
 Request:
 ``` bash
-POST /api/echo
+POST https://echo-tra6.onrender.com/api/echo
 Content-Type: application/json
-
 {
   "message": "Hello, Echo!"
 }
