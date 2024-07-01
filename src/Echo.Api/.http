@@ -1,0 +1,17 @@
+@hostname=localhost
+@port=7038
+
+GET https://{{hostname}}:{{port}}/hello
+###
+
+
+POST https://{{hostname}}:{{port}}/api/echo-me
+Content-Type: application/json
+
+{
+    "date": "2023-05-10",
+    "temperatureC": 30,
+    "summary": "Warm"
+}
+
+###

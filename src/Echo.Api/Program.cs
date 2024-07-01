@@ -1,17 +1,32 @@
+using Microsoft.AspNetCore.HttpLogging;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+var host = builder.Host;
 var services = builder.Services;
 var configuration = builder.Configuration;
+
+Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
+host.UseSerilog(Log.Logger);
+
+services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.RequestBody;
+    options.RequestBodyLogLimit = 1024;
+});
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddSerilog(new LoggerConfiguration()
-    .ReadFrom.Configuration(configuration)
-    .CreateLogger());
-
 var app = builder.Build();
+
+
+app.UseWhen(
+    context => !context.Request.Path.StartsWithSegments("/swagger"),
+    appBuilder => appBuilder.UseHttpLogging());
 
 app.Use(async (context, next) =>
 {
