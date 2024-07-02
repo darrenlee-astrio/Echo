@@ -19,7 +19,7 @@ To get started with Echo, simply clone the repository and build the project usin
 git clone https://github.com/darrenleeyx/echo.git
 cd echo
 dotnet build
-dotnet run
+dotnet run --project src/Echo.Api/Echo.Api.csproj
 ```
 
 Once the application is running, you can send requests to it using your favorite HTTP client.
