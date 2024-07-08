@@ -24,7 +24,7 @@ dotnet run --project src/Echo.Api/Echo.Api.csproj
 
 Once the application is running, you can send requests to it using your favorite HTTP client.
 
-## Usage
+## Usage 1 - Echoing request body
 Echo listens for incoming requests and echoes back any requests that contain `/api` in their path. You can send requests using any HTTP method (GET, POST, PUT, DELETE, etc.) and include `/api` in the URL path. The request body will be echoed back in the response.
 
 ## Example
@@ -41,6 +41,24 @@ Response:
 {
   "message": "Hello, Echo!"
 }
+```
+
+## Usage 2 - Return specified HTTP status code
+To set the response to return a specific status code, include the desired HTTP status code in the `x-expected-status-code` request header. Echo will return an empty body for the specified status code. If set to `x-expected-status-code:200`, it will work as defined in usage 1.
+
+## Example
+Request:
+``` bash
+POST https://echo-tra6.onrender.com/api/echo
+X-Expected-Status-Code: 400
+Content-Type: application/json
+{
+  "message": "Hello, Echo!"
+}
+```
+Response:
+``` bash
+400 Bad Request
 ```
 
 ## GitHub Actions
