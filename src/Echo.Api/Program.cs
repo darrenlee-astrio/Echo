@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.HttpLogging;
 using Serilog;
 
@@ -21,8 +22,24 @@ services.AddHttpLogging(options =>
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
+services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+
 var app = builder.Build();
 
+var versionSet = app.NewApiVersionSet()
+    .HasApiVersion(new ApiVersion(1))
+    .Build();
 
 app.UseWhen(
     context => !context.Request.Path.StartsWithSegments("/swagger"),
@@ -58,7 +75,9 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.MapGet("hello", () => "Hello world");
+app.MapGet("hello", () => "Hello world")
+   .WithApiVersionSet(versionSet)
+   .MapToApiVersion(1);
 
 app.UseSwagger();
 app.UseSwaggerUI();

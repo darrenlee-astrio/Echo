@@ -2,6 +2,7 @@
 @port=7038
 
 GET https://{{hostname}}:{{port}}/hello
+X-Api-Version: 0
 ###
 
 
