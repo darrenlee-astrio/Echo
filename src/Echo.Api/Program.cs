@@ -31,7 +31,6 @@ services.AddApiVersioning(options =>
 }).AddApiExplorer(options =>
 {
     options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
 });
 
 
