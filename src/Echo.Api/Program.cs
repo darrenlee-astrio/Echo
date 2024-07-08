@@ -36,6 +36,20 @@ app.Use(async (context, next) =>
         {
             var requestBody = await reader.ReadToEndAsync();
 
+            var hasExpectedStatusCode = context.Request.Headers.TryGetValue("x-expected-status-code", out var expectedStatusCode);
+
+            if (hasExpectedStatusCode)
+            {
+                int statusCode = int.Parse(expectedStatusCode.ToString());
+
+                if (statusCode != StatusCodes.Status200OK)
+                {
+                    context.Response.StatusCode = statusCode;
+                    return;
+                }
+            }
+
+            context.Response.StatusCode = StatusCodes.Status200OK;
             context.Response.ContentType = context.Request.ContentType;
             await context.Response.WriteAsync(requestBody);
             return;

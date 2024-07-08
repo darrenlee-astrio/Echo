@@ -15,3 +15,13 @@ Content-Type: application/json
 }
 
 ###
+
+POST https://{{hostname}}:{{port}}/api/echo-me
+Content-Type: application/json
+X-Expected-Status-Code: 400
+
+{
+    "date": "2023-05-10",
+    "temperatureC": 30,
+    "summary": "Warm"
+}
