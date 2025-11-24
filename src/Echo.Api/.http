@@ -1,12 +1,12 @@
 @hostname=localhost
-@port=7038
+@port=5167
 
 GET https://{{hostname}}:{{port}}/hello
 X-Api-Version: 0
 ###
 
 
-POST https://{{hostname}}:{{port}}/api/echo-me
+POST http://{{hostname}}:{{port}}/api/echo-me
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 ###
 
-POST https://{{hostname}}:{{port}}/api/echo-me
+POST http://{{hostname}}:{{port}}/api/echo-me
 Content-Type: application/json
 X-Expected-Status-Code: 400
 
@@ -26,3 +26,14 @@ X-Expected-Status-Code: 400
     "temperatureC": 30,
     "summary": "Warm"
 }
+
+###
+
+POST http://{{hostname}}:{{port}}/api/echo-me
+Content-Type: application/xml
+
+<WeatherReport>
+    <date>2023-05-10</date>
+    <temperatureC>30</temperatureC>
+    <summary>Warm</summary>
+</WeatherReport>
