@@ -78,6 +78,8 @@ app.MapGet("hello", () => "Hello world")
    .WithApiVersionSet(versionSet)
    .MapToApiVersion(1);
 
+app.UseSerilogRequestLogging();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
