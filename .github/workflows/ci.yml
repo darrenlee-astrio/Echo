@@ -2,9 +2,9 @@ name: Build, Test, and Publish
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
+  #push:
+    #branches:
+      #- master
   pull_request:
     branches:
       - master
