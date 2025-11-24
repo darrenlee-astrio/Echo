@@ -1,5 +1,4 @@
-using Asp.Versioning;
-using Microsoft.AspNetCore.HttpLogging;
+using Echo.Api.Registrations;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,79 +7,31 @@ var services = builder.Services;
 var configuration = builder.Configuration;
 
 Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
-            .CreateLogger();
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-host.UseSerilog(Log.Logger);
-
-services.AddHttpLogging(options =>
+try
 {
-    options.LoggingFields = HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.RequestBody;
-    options.RequestBodyLogLimit = 1024;
-});
+    host.RegisterSerilog(configuration);
 
-services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
+    services.RegisterApi();
 
-services.AddApiVersioning(options =>
+    var app = builder.Build();
+
+    app.UseApi();
+
+    app.Run();
+}
+catch (Exception ex)
 {
-    options.ReportApiVersions = true;
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
-}).AddApiExplorer(options =>
+    Log.Fatal(ex, "An error occurred while running the application.");
+
+    // In order for the Windows Service Management system to leverage configured
+    // recovery options, we need to terminate the process with a non-zero exit code.
+    Environment.Exit(1);
+}
+finally
 {
-    options.GroupNameFormat = "'v'VVV";
-});
-
-
-var app = builder.Build();
-
-var versionSet = app.NewApiVersionSet()
-    .HasApiVersion(new ApiVersion(1))
-    .Build();
-
-app.UseWhen(
-    context => !context.Request.Path.StartsWithSegments("/swagger"),
-    appBuilder => appBuilder.UseHttpLogging());
-
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/api"))
-    {
-        using (var reader = new StreamReader(context.Request.Body))
-        {
-            var requestBody = await reader.ReadToEndAsync();
-
-            var hasExpectedStatusCode = context.Request.Headers.TryGetValue("x-expected-status-code", out var expectedStatusCode);
-
-            if (hasExpectedStatusCode)
-            {
-                int statusCode = int.Parse(expectedStatusCode.ToString());
-
-                if (statusCode != StatusCodes.Status200OK)
-                {
-                    context.Response.StatusCode = statusCode;
-                    return;
-                }
-            }
-
-            context.Response.StatusCode = StatusCodes.Status200OK;
-            context.Response.ContentType = context.Request.ContentType;
-            await context.Response.WriteAsync(requestBody);
-            return;
-        }
-    }
-    await next();
-});
-
-app.MapGet("hello", () => "Hello world")
-   .WithApiVersionSet(versionSet)
-   .MapToApiVersion(1);
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
-
-app.Run();
+    await Log.CloseAndFlushAsync();
+}
